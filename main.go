@@ -7,12 +7,8 @@ import (
 	"os"
 )
 
-const (
-	configfile = "alma.conf"
-)
-
 func main() {
-
+	configfile := os.Getenv("EXPANDER_CONF")
 	expander := expander.NewExpander(configfile)
 	err := expander.ParseConfigFile()
 	if err != nil {
