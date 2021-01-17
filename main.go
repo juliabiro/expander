@@ -2,26 +2,30 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"github.com/juliabiro/expander/cmd"
+	"github.com/juliabiro/expander/expander"
 	"os"
-	"strings"
+)
+
+const (
+	configfile = "alma.conf"
 )
 
 func main() {
-	mapping := make(map[string]string)
-	data, err := ioutil.ReadFile("alma.conf")
-	if err != nil {
-		panic(err)
-	}
 
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		mapping[pairs[0]] = strings.TrimSpace(pairs[1])
+	expander := expander.NewExpander(configfile)
+	err := expander.ParseConfigFile()
+	if err != nil {
+		fmt.Printf("Failed to parse configfile %s, error is %s.", configfile, err)
 	}
 
 	args := os.Args[1:]
+	input, err := cmd.ParseInput(args)
 
-	for _, c := range args {
-		fmt.Print(mapping[c])
+	if err != nil {
+		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
+	}
+	for _, c := range input {
+		fmt.Print(expander.Expand(c))
 	}
 }
