@@ -104,7 +104,13 @@ var mapCmd = &cobra.Command{
 
 		fmt.Println("Generated Abbreviations:")
 		fmt.Println(out)
-		fmt.Printf("Mapping saved to %s", configfile)
+
+		if configfile == "" {
+			fmt.Println("Mapping not saved. To save, set the EXPANDER_CONF env var")
+
+		} else {
+			fmt.Printf("Mapping saved to %s", configfile)
+		}
 	},
 }
 
