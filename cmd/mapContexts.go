@@ -5,8 +5,6 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
-	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -62,29 +60,25 @@ func abbreviate(ctx string, a Abbreviations) string {
 	return res
 }
 
+var longExpressions string
+var expanderAbbrevations string
+
 var mapCmd = &cobra.Command{
 	Use:   "map",
 	Short: "generate abbreviations for available kubernetes contexts",
 	Long:  "Map available kubernetes contexts, and print the abbreviations. These will be available for expansion in future runs.",
 	Run: func(cmd *cobra.Command, args []string) {
-		// do something
-		out, err := exec.Command("kubectl", "config", "get-contexts", "--no-headers=true").Output()
-
-		if err != nil {
-			log.Fatal(err)
-		}
 		// process pipe content here
-		configfile := os.Getenv("EXPANDER_ABBREVIATIONS_MAP")
 
-		abbreviations := NewAbbreviations(configfile)
-		err = abbreviations.ParseConfigFile()
+		abbreviations := NewAbbreviations(expanderAbbrevations)
+		err := abbreviations.ParseConfigFile()
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		ctxMap := make(map[string]string)
-		contextLines := strings.Split(string(out), "\n")
+		contextLines := strings.Split(string(longExpressions), " ")
 		for _, line := range contextLines {
 			ctx := strings.Split(strings.Trim(line, " "), " ")[0]
 			abbr := abbreviate(ctx, *abbreviations)
@@ -103,5 +97,8 @@ var mapCmd = &cobra.Command{
 }
 
 func init() {
+	mapCmd.PersistentFlags().StringVar(&longExpressions, "expressions", "", "space separated values of long strings that need to be abbreviated")
+	mapCmd.PersistentFlags().StringVar(&expanderAbbrevations, "abbreviations", "", "file containing the abbreviations to be applied")
+
 	rootCmd.AddCommand(mapCmd)
 }
