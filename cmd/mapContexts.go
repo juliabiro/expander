@@ -18,6 +18,7 @@ func writeToFile(out string, filename string) {
 
 var longExpressions string
 var expanderAbbrevations string
+var expanderGeneratedConf string
 
 var mapCmd = &cobra.Command{
 	Use:   "map",
@@ -36,13 +37,16 @@ var mapCmd = &cobra.Command{
 		out := abbreviations.GenerateMapping(longExpressions)
 
 		// TODO: write to file
-		configfile := os.Getenv("EXPANDER_CONF")
+		configfile := expanderGeneratedConf
+		if configfile == "" {
+			configfile = os.Getenv("EXPANDER_GENERATED_CONF")
+		}
 
 		fmt.Println("Generated Abbreviations:")
 		fmt.Println(out)
 
 		if configfile == "" {
-			fmt.Println("Mapping not saved. To save, set the EXPANDER_CONF env var")
+			fmt.Println("Mapping not saved. To save, use the --generated_conf flag or set the EXPANDER_GENERATED_CONF env var.")
 
 		} else {
 			writeToFile(out, configfile)
@@ -54,6 +58,7 @@ var mapCmd = &cobra.Command{
 func init() {
 	mapCmd.PersistentFlags().StringVar(&longExpressions, "expressions", "", "space separated values of long strings that need to be abbreviated")
 	mapCmd.PersistentFlags().StringVar(&expanderAbbrevations, "abbreviations", "", "file containing the abbreviations to be applied")
+	mapCmd.PersistentFlags().StringVar(&expanderGeneratedConf, "generated_conf", "", "file to which generated conf should be written. Default is $EXPANDER_GENERATED_CONF")
 
 	rootCmd.AddCommand(mapCmd)
 }

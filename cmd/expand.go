@@ -15,7 +15,7 @@ var expandCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		configfile := os.Getenv("EXPANDER_CONF")
+		configfile := os.Getenv("EXPANDER_GENERATED_CONF")
 		expander := expander.NewExpander(configfile)
 		err := expander.ParseConfigFile()
 		if err != nil {
