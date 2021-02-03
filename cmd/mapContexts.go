@@ -88,6 +88,12 @@ var mapCmd = &cobra.Command{
 		// TODO: sort and clean
 		out := ""
 		for k, v := range ctxMap {
+			if k == "" {
+				continue
+			}
+			if k == v {
+				continue
+			}
 			out = out + fmt.Sprintf("%s: %s\n", k, v)
 
 		}
