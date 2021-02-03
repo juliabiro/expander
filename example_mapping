@@ -1,2 +1,8 @@
 a: apple
 p: pear
+d1: domain1.com
+d2: domain2.com
+p: production
+s: staging
+-0:
+-:

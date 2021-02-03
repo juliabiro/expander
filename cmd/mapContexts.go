@@ -46,7 +46,7 @@ var mapCmd = &cobra.Command{
 		fmt.Println(out)
 
 		if configfile == "" {
-			fmt.Println("Mapping not saved. To save, use the --generated_conf flag or set the EXPANDER_GENERATED_CONF env var.")
+			fmt.Println("Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_GENERATED_CONF env var.")
 
 		} else {
 			writeToFile(out, configfile)
@@ -58,7 +58,7 @@ var mapCmd = &cobra.Command{
 func init() {
 	mapCmd.PersistentFlags().StringVar(&longExpressions, "expressions", "", "space separated values of long strings that need to be abbreviated")
 	mapCmd.PersistentFlags().StringVar(&expanderAbbrevations, "abbreviations", "", "file containing the abbreviations to be applied")
-	mapCmd.PersistentFlags().StringVar(&expanderGeneratedConf, "generated_conf", "", "file to which generated conf should be written. Default is $EXPANDER_GENERATED_CONF")
+	mapCmd.PersistentFlags().StringVar(&expanderGeneratedConf, "generated-config", "", "file to which generated conf should be written. Default is $EXPANDER_GENERATED_CONF")
 
 	rootCmd.AddCommand(mapCmd)
 }
