@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var generatedConfig string
+var customConfig string
 var expandCmd = &cobra.Command{
 	Use:   "ex",
 	Short: "Expand known abbreviations",
@@ -15,11 +17,23 @@ var expandCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		configfile := os.Getenv("EXPANDER_CONF")
-		expander := expander.NewExpander(configfile)
-		err := expander.ParseConfigFile()
-		if err != nil {
-			fmt.Printf("Failed to parse configfile %s, error is %s.", configfile, err)
+		generatedConfigFile := generatedConfig
+		customConfigFile := customConfig
+
+		if generatedConfigFile == "" {
+			generatedConfigFile = os.Getenv("EXPANDER_GENERATED_CONF")
+		}
+		if customConfigFile == "" {
+			customConfigFile = os.Getenv("EXPANDER_CUSTOM_CONF")
+		}
+
+		expander := expander.NewExpander()
+		expander.ParseConfigFile(generatedConfigFile)
+		expander.ParseConfigFile(customConfigFile)
+
+		if expander.IsEmptyMap() {
+			fmt.Println("No mapping found, exiting")
+			return
 		}
 
 		input, err := ParseInput(args)
@@ -30,11 +44,12 @@ var expandCmd = &cobra.Command{
 		for _, c := range input {
 			fmt.Print(expander.Expand(c))
 		}
-		// do something
 
 	},
 }
 
 func init() {
+	expandCmd.PersistentFlags().StringVar(&generatedConfig, "generated-config", "", "path to the generated config file to use for expandsion. Default is the EXPANDER_GENERATED_CONF env var. ")
+	expandCmd.PersistentFlags().StringVar(&customConfig, "custom-config", "", "path to the custom config file to use for expandsion. Default is the EXPANDER_CUSTOM_CONF env var. ")
 	rootCmd.AddCommand(expandCmd)
 }
