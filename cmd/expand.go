@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/juliabiro/expander/expander"
+	"github.com/juliabiro/expander/pkg/expander"
 	"github.com/spf13/cobra"
 	"os"
 )
