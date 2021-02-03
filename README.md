@@ -1,5 +1,5 @@
 # expander
-A commandline go tool that expands abbreviations bases on a predefined list. The abbreviations can be automatically constructed with teh same tool, based on a mapping. 
+A commandline go tool that expands abbreviations based on a predefined list. The abbreviations can be automatically constructed with teh same tool, based on a mapping. 
 
 ## What is the problem that I am tryong to solve?
 
