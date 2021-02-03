@@ -16,12 +16,15 @@ var expandCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		configfile := os.Getenv("EXPANDER_GENERATED_CONF")
+		customConfig := os.Getenv("EXPANDER_CUSTOM_CONF")
 		expander := expander.NewExpander(configfile)
-		err := expander.ParseConfigFile()
-		if err != nil {
-			fmt.Printf("Failed to parse configfile %s, error is %s.", configfile, err)
-		}
+		expander.ParseConfigFile(configfile)
+		expander.ParseConfigFile(customConfig)
 
+		if expander.IsEmptyMap() {
+			fmt.Println("No mapping found, exiting")
+			return
+		}
 		input, err := ParseInput(args)
 
 		if err != nil {

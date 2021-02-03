@@ -1,6 +1,7 @@
 package expander
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 )
@@ -21,19 +22,25 @@ func NewExpander(file string) *Expander {
 
 }
 
-func (e *Expander) ParseConfigFile() error {
+func (e *Expander) ParseConfigFile(configfile string) {
+	if configfile == "" {
+		return
+	}
 	data, err := ioutil.ReadFile(e.configFile)
 	if err != nil {
-		return err
+		fmt.Printf("Failed to open configfile %s, error is %s.", configfile, err)
 	}
 
 	for _, line := range strings.Split(string(data), "\n") {
 		pairs := strings.Split(line, ":")
 		e.mapping[pairs[0]] = strings.TrimSpace(pairs[1])
 	}
-	return nil
 }
 
 func (e *Expander) Expand(s string) string {
 	return e.mapping[s]
+}
+
+func (e *Expander) IsEmptyMap() bool {
+	return len(e.mapping) == 0
 }
