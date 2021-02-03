@@ -114,6 +114,32 @@ $ expander ex "d02dl"
 staging-002-domain1.com
 ```
 
-5. Create a function that uses the expander when `kubectl` is called
+5. Create a function that uses the expander when `kubectl` is called, and make an alias for it (eg in your .aliases file). 
+(This happens to be fish shell, nut bash, but you get the gist)
 
-TBD
+```
+function kubectl_context
+    kubectl $argv[1..-2] --context ( expander ex "$argv[-1]" )
+end
+
+alias k='kubectl_context'
+```
+
+If you source this, you can make commands like 
+```
+k get pods p01d1
+```
+
+And it will execute 
+``` 
+kubectl get pod --context production-001-domain1.com
+```
+
+Just don't forget to rerun the map generation when the set of contexts you have access to changes. 
+
+
+## future work
+
+- tests (khm)
+- support for multiple generated config files?
+- support for shell autocompletion
