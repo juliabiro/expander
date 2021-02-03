@@ -10,7 +10,7 @@ import (
 )
 
 func writeToFile(out string, filename string) {
-	err := ioutil.WriteFile(filename, []byte(out), 0444)
+	err := ioutil.WriteFile(filename, []byte(out), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
