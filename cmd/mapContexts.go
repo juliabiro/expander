@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -84,15 +85,20 @@ var mapCmd = &cobra.Command{
 			abbr := abbreviate(ctx, *abbreviations)
 			ctxMap[abbr] = ctx
 		}
-		fmt.Println("Generated Abbreviations:")
 		// TODO: sort and clean
+		out := ""
 		for k, v := range ctxMap {
-			fmt.Printf("%s: %s\n", k, v)
+			out = out + fmt.Sprintf("%s: %s\n", k, v)
 
 		}
 
 		// TODO: write to file
+		configfile := os.Getenv("EXPANDER_CONF")
+		err = ioutil.WriteFile(configfile, []byte(out), 0444)
 
+		fmt.Println("Generated Abbreviations:")
+		fmt.Println(out)
+		fmt.Printf("Mapping saved to %s", configfile)
 	},
 }
 
