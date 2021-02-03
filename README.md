@@ -25,7 +25,9 @@ You can put the binary in your PATH.
 ### expand abbreviations based on an already existing list
 
 ```
-$ expander ex "a" --custom-config ./example.conf
+$ expander ex "a23z" --custom-config ./example.conf
+
+apple-23-z
 ```
 
 You can specify 2 config files, with the flags`--generated-config` and `--custom-config` (the latter overwrites the former). Instead of the flags, you can use the `EXPANDER_GENERATED_CONF` and `EXPANDER_CUSTOM_CONF` environment variables. 
@@ -36,7 +38,7 @@ short: long
 a: apples
 ...
 ```
-See example.conf as an example.
+See `example.conf` as an example.
 
 The expander only returns the long versions of the strings found in the mapping. For unrecognized strings, nothing is returned. 
 
@@ -48,10 +50,10 @@ You can also use the tool generate consistent abbreviations of long expressions 
 
 Example:
 ```
-$ expander map "apple-23-z" --abbrevations example_mapping
+$ expander map --expressions "apple-23-z" --abbrevations example_mapping
 ```
 
-The program will print the generated abbreviations list. If you want to, you can save the generated list to a file and use it later for expansion, by specifying the `--generated-congfig` flag or setting the `EXPANDER_GENERATED_CONF` environment variable. 
+The program will print the generated abbreviations list. If you want to, you can save the generated list to a file and use it later for expansion, by specifying the `--generated-config` flag or setting the `EXPANDER_GENERATED_CONF` environment variable. 
 
 
 #### How is the abbreviations mapping used?
@@ -67,23 +69,12 @@ The abbreviations are executed in the order you define them, so if you have abbr
 kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2|tr  "\n" " "
 ```
 ``` 
-production-001-domain1.com
-production-001-domain2.com
-staging-001-domain1.com
-staging-002-domain1.com
+production-001-domain1.com production-001-domain2.com staging-001-domain1.com staging-002-domain1.com
 ```
 
 2. Create a map of abbreviations and save it to a file
 
-For example:
-```
-d1: domain1.com
-d2: domain2.com
-p: production
-s: staging
--0:
--:
-```
+See `example_mapping` as an example. 
 
 3. Generate the abbreviations and save them to a file
 ```
