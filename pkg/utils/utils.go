@@ -15,7 +15,7 @@ func ReadPairsFromFile(file string) (*[]StringPair, error) {
 	mapping := make([]StringPair, 0)
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Fatal("Failed to open configfile %s, error is %s.", file, err)
+		log.Fatalf("Failed to open configfile %s, error is %s.", file, err)
 		return nil, err
 	}
 

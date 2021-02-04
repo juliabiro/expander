@@ -21,7 +21,7 @@ func (a *Abbreviator) ParseConfigFile(configfile string) {
 	}
 	pairs, err := utils.ReadPairsFromFile(configfile)
 	if err != nil {
-		fmt.Println("Couldn't read configfile %s", configfile)
+		fmt.Printf("Couldn't read configfile %s\n", configfile)
 		return
 	}
 	a.mapping = *pairs
