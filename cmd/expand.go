@@ -41,6 +41,7 @@ var expandCmd = &cobra.Command{
 		if err != nil {
 			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
 		}
+		// This is where the magic happens
 		for _, c := range input {
 			fmt.Print(expander.Expand(c))
 		}

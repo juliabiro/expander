@@ -27,16 +27,17 @@ var mapCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// process pipe content here
 
-		abbreviations := abbreviator.NewAbbreviator(expanderAbbrevations)
-		err := abbreviations.ParseConfigFile()
+		abbreviations := abbreviator.NewAbbreviator()
+		abbreviations.ParseConfigFile(expanderAbbrevations)
 
-		if err != nil {
-			log.Fatal(err)
+		if abbreviations.IsEmptyMap() {
+			fmt.Println("No mapping found, exiting")
+			return
 		}
 
+		// This is where the magic happens
 		out := abbreviations.GenerateMapping(longExpressions)
 
-		// TODO: write to file
 		configfile := expanderGeneratedConf
 		if configfile == "" {
 			configfile = os.Getenv("EXPANDER_GENERATED_CONF")

@@ -1,0 +1,5 @@
+package abbreviator
+
+import (
+	"testing"
+)

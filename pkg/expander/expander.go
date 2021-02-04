@@ -2,8 +2,7 @@ package expander
 
 import (
 	"fmt"
-	"io/ioutil"
-	"strings"
+	"github.com/juliabiro/expander/pkg/utils"
 )
 
 var mapping map[string]string
@@ -24,17 +23,14 @@ func (e *Expander) ParseConfigFile(configfile string) {
 	if configfile == "" {
 		return
 	}
-	data, err := ioutil.ReadFile(configfile)
+	pairs, err := utils.ReadPairsFromFile(configfile)
 	if err != nil {
-		fmt.Printf("Failed to open configfile %s, error is %s.", configfile, err)
+		fmt.Println("Couldn't read configfile %s", configfile)
+		return
 	}
 
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		if len(pairs) < 2 {
-			continue
-		}
-		e.mapping[pairs[0]] = strings.TrimSpace(pairs[1])
+	for _, p := range *pairs {
+		e.mapping[p.Key] = p.Value
 	}
 }
 

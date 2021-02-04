@@ -2,58 +2,36 @@ package abbreviator
 
 import (
 	"fmt"
-	"io/ioutil"
+	"github.com/juliabiro/expander/pkg/utils"
 	"strings"
 )
 
-type stringPair struct {
-	f string
-	s string
-}
 type Abbreviator struct {
-	configFile string
-	mapping    []stringPair
+	mapping []utils.StringPair
 }
 
-func NewAbbreviator(file string) *Abbreviator {
+func NewAbbreviator() *Abbreviator {
 	abbreviations := Abbreviator{}
-	abbreviations.configFile = file
-	abbreviations.mapping = make([]stringPair, 0)
-
 	return &abbreviations
 
 }
 
-//TODO this part should be abstracted away, this is code duplication
-func (a *Abbreviator) ParseConfigFile() error {
-	data, err := ioutil.ReadFile(a.configFile)
+func (a *Abbreviator) ParseConfigFile(configfile string) {
+	if configfile == "" {
+		return
+	}
+	pairs, err := utils.ReadPairsFromFile(configfile)
 	if err != nil {
-		return err
+		fmt.Println("Couldn't read configfile %s", configfile)
+		return
 	}
-
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		f, s := "", ""
-		switch len(pairs) {
-		case 0:
-			continue
-		case 1:
-			f = strings.TrimSpace(pairs[0])
-			s = ""
-		default:
-			f = strings.TrimSpace(pairs[0])
-			s = strings.TrimSpace(pairs[1])
-		}
-
-		a.mapping = append(a.mapping, stringPair{f, s})
-	}
-	return nil
+	a.mapping = *pairs
 }
 
 func (a *Abbreviator) abbreviate(ctx string) string {
 	res := strings.Repeat(ctx, 1)
 	for _, sp := range a.mapping {
-		res = strings.ReplaceAll(res, sp.f, sp.s)
+		res = strings.ReplaceAll(res, sp.Key, sp.Value)
 	}
 	return res
 }
@@ -80,4 +58,8 @@ func (a *Abbreviator) GenerateMapping(expressions string) string {
 	}
 
 	return out
+}
+
+func (a *Abbreviator) IsEmptyMap() bool {
+	return len(a.mapping) == 0
 }
