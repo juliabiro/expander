@@ -2,73 +2,42 @@ package abbreviator
 
 import (
 	"fmt"
-	"io/ioutil"
+	"github.com/juliabiro/expander/pkg/utils"
 	"strings"
 )
 
-type stringPair struct {
-	f string
-	s string
-}
 type Abbreviator struct {
-	configFile string
-	mapping    []stringPair
+	mapping []utils.StringPair
 }
 
-func NewAbbreviator(file string) *Abbreviator {
+func NewAbbreviator() *Abbreviator {
 	abbreviations := Abbreviator{}
-	abbreviations.configFile = file
-	abbreviations.mapping = make([]stringPair, 0)
-
 	return &abbreviations
-
 }
 
-//TODO this part should be abstracted away, this is code duplication
-func (a *Abbreviator) ParseConfigFile() error {
-	data, err := ioutil.ReadFile(a.configFile)
+func (a *Abbreviator) ParseConfigFile(configfile string) {
+	if configfile == "" {
+		return
+	}
+	pairs, err := utils.ReadPairsFromFile(configfile)
 	if err != nil {
-		return err
+		fmt.Printf("Couldn't read configfile %s\n", configfile)
+		return
 	}
-
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		f, s := "", ""
-		switch len(pairs) {
-		case 0:
-			continue
-		case 1:
-			f = strings.TrimSpace(pairs[0])
-			s = ""
-		default:
-			f = strings.TrimSpace(pairs[0])
-			s = strings.TrimSpace(pairs[1])
-		}
-
-		a.mapping = append(a.mapping, stringPair{f, s})
-	}
-	return nil
+	a.mapping = *pairs
 }
 
 func (a *Abbreviator) abbreviate(ctx string) string {
 	res := strings.Repeat(ctx, 1)
 	for _, sp := range a.mapping {
-		res = strings.ReplaceAll(res, sp.f, sp.s)
+		res = strings.ReplaceAll(res, sp.Key, sp.Value)
 	}
 	return res
 }
 
-func (a *Abbreviator) GenerateMapping(expressions string) string {
-	ctxMap := make(map[string]string)
-	contextLines := strings.Split(string(expressions), " ")
-	for _, line := range contextLines {
-		ctx := strings.Split(strings.Trim(line, " "), " ")[0]
-		abbr := a.abbreviate(ctx)
-		ctxMap[abbr] = ctx
-	}
-	// TODO: sort and clean
+func makeSortedString(m map[string]string) string {
 	out := ""
-	for k, v := range ctxMap {
+	for k, v := range m {
 		if k == "" {
 			continue
 		}
@@ -80,4 +49,18 @@ func (a *Abbreviator) GenerateMapping(expressions string) string {
 	}
 
 	return out
+}
+
+func (a *Abbreviator) GenerateMappingString(expressions []string) string {
+	data := make(map[string]string)
+	for _, word := range expressions {
+		abbr := a.abbreviate(word)
+		data[abbr] = word
+	}
+
+	return makeSortedString(data)
+}
+
+func (a *Abbreviator) IsEmptyMap() bool {
+	return len(a.mapping) == 0
 }

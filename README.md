@@ -44,13 +44,11 @@ The expander only returns the long versions of the strings found in the mapping.
 
 ### generate abbreviations
 
-You can also use the tool generate consistent abbreviations of long expressions with the `map` command. This needs two inputs:
-- the list of expressions to be abbreviated in a space-separated list, provided with the `--expressions` flag
-- the list of abbreviations to apply, in a mapping file, provided with the `--abbreviations` flag
+You can also use the tool generate consistent abbreviations of long expressions with the `map` command. This needs the expressions to be abbreviated in a space-separated list, and the list of abbreviations to apply, in a mapping file, provided with the `--abbreviations` flag.
 
 Example:
 ```
-$ expander map --expressions "apple-23-z" --abbrevations example_mapping
+$ expander map "apple-23-z" --abbrevations example_mapping
 ```
 
 The program will print the generated abbreviations list. If you want to, you can save the generated list to a file and use it later for expansion, by specifying the `--generated-config` flag or setting the `EXPANDER_GENERATED_CONF` environment variable. 

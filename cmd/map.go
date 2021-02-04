@@ -16,7 +16,6 @@ func writeToFile(out string, filename string) {
 	}
 }
 
-var longExpressions string
 var expanderAbbrevations string
 var expanderGeneratedConf string
 
@@ -24,19 +23,28 @@ var mapCmd = &cobra.Command{
 	Use:   "map",
 	Short: "generate abbreviations for available kubernetes contexts",
 	Long:  "Map available kubernetes contexts, and print the abbreviations. These will be available for expansion in future runs.",
+	Args: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// process pipe content here
 
-		abbreviations := abbreviator.NewAbbreviator(expanderAbbrevations)
-		err := abbreviations.ParseConfigFile()
+		abbreviations := abbreviator.NewAbbreviator()
+		abbreviations.ParseConfigFile(expanderAbbrevations)
 
-		if err != nil {
-			log.Fatal(err)
+		if abbreviations.IsEmptyMap() {
+			fmt.Println("No mapping found, exiting")
+			return
 		}
 
-		out := abbreviations.GenerateMapping(longExpressions)
+		input, err := ParseInput(args)
+		if err != nil {
+			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
+		}
 
-		// TODO: write to file
+		// This is where the magic happens
+		out := abbreviations.GenerateMappingString(input)
+
 		configfile := expanderGeneratedConf
 		if configfile == "" {
 			configfile = os.Getenv("EXPANDER_GENERATED_CONF")
@@ -56,7 +64,6 @@ var mapCmd = &cobra.Command{
 }
 
 func init() {
-	mapCmd.PersistentFlags().StringVar(&longExpressions, "expressions", "", "space separated values of long strings that need to be abbreviated")
 	mapCmd.PersistentFlags().StringVar(&expanderAbbrevations, "abbreviations", "", "file containing the abbreviations to be applied")
 	mapCmd.PersistentFlags().StringVar(&expanderGeneratedConf, "generated-config", "", "file to which generated conf should be written. Default is $EXPANDER_GENERATED_CONF")
 
