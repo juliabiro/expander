@@ -35,8 +35,13 @@ var mapCmd = &cobra.Command{
 			return
 		}
 
+		input, err := ParseInput(args)
+		if err != nil {
+			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
+		}
+
 		// This is where the magic happens
-		out := abbreviations.GenerateMapping(longExpressions)
+		out := abbreviations.GenerateMappingString(input)
 
 		configfile := expanderGeneratedConf
 		if configfile == "" {

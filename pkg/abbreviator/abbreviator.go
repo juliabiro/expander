@@ -13,7 +13,6 @@ type Abbreviator struct {
 func NewAbbreviator() *Abbreviator {
 	abbreviations := Abbreviator{}
 	return &abbreviations
-
 }
 
 func (a *Abbreviator) ParseConfigFile(configfile string) {
@@ -36,17 +35,9 @@ func (a *Abbreviator) abbreviate(ctx string) string {
 	return res
 }
 
-func (a *Abbreviator) GenerateMapping(expressions string) string {
-	ctxMap := make(map[string]string)
-	contextLines := strings.Split(string(expressions), " ")
-	for _, line := range contextLines {
-		ctx := strings.Split(strings.Trim(line, " "), " ")[0]
-		abbr := a.abbreviate(ctx)
-		ctxMap[abbr] = ctx
-	}
-	// TODO: sort and clean
+func makeSortedString(m map[string]string) string {
 	out := ""
-	for k, v := range ctxMap {
+	for k, v := range m {
 		if k == "" {
 			continue
 		}
@@ -58,6 +49,16 @@ func (a *Abbreviator) GenerateMapping(expressions string) string {
 	}
 
 	return out
+}
+
+func (a *Abbreviator) GenerateMappingString(expressions []string) string {
+	data := make(map[string]string)
+	for _, word := range expressions {
+		abbr := a.abbreviate(word)
+		data[abbr] = word
+	}
+
+	return makeSortedString(data)
 }
 
 func (a *Abbreviator) IsEmptyMap() bool {
