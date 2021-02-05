@@ -11,16 +11,18 @@ import (
 var generatedConfig string
 var customConfig string
 
-func parseExArguments(args []string) (generatedConfig string, customConfig string, input []string) {
-	generatedConfigFile := generatedConfig
-	customConfigFile := customConfig
+func parseExArguments(args []string) (string, string, []string) {
 
-	if generatedConfigFile == "" {
-		generatedConfigFile = os.Getenv("EXPANDER_GENERATED_CONF")
+	generatedConfigFile := os.Getenv("EXPANDER_GENERATED_CONF")
+	customConfigFile := os.Getenv("EXPANDER_CUSTOM_CONF")
+
+	if customConfig != "" {
+		customConfigFile = customConfig
 	}
-	if customConfigFile == "" {
-		customConfigFile = os.Getenv("EXPANDER_CUSTOM_CONF")
+	if generatedConfig != "" {
+		generatedConfigFile = generatedConfig
 	}
+
 	input, err := ParseInput(args)
 
 	if err != nil {
@@ -33,8 +35,8 @@ func parseExArguments(args []string) (generatedConfig string, customConfig strin
 }
 
 func expand(generatedConfigFile string, customConfigFile string, expressions []string) []string {
-
 	abbreviations := make(map[string]string)
+
 	expander.ParseConfigFile(generatedConfigFile, abbreviations)
 	expander.ParseConfigFile(customConfigFile, abbreviations)
 

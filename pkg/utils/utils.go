@@ -39,13 +39,16 @@ func processPair(pairs []string) *StringPair {
 }
 
 func ReadPairsFromFile(file string) *[]StringPair {
-	mapping := make([]StringPair, 0)
+	if file == "" {
+		return nil
+	}
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatalf("Failed to open configfile %s, error is %s.", file, err)
 		return nil
 	}
 
+	mapping := make([]StringPair, 0)
 	for _, line := range strings.Split(string(data), "\n") {
 		pairs := strings.Split(line, ":")
 		p := processPair(pairs)

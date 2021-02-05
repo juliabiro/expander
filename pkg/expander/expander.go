@@ -7,9 +7,12 @@ import (
 func ParseConfigFile(configfile string, mapping map[string]string) {
 	pairs := utils.ReadPairsFromFile(configfile)
 
-	for _, p := range *pairs {
-		mapping[p.Key] = p.Value
+	if pairs != nil {
+		for _, p := range *pairs {
+			mapping[p.Key] = p.Value
+		}
 	}
+
 }
 
 func expand(s string, mapping map[string]string) string {
