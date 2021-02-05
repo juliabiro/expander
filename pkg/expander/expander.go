@@ -5,21 +5,7 @@ import (
 	"github.com/juliabiro/expander/pkg/utils"
 )
 
-var mapping map[string]string
-
-type Expander struct {
-	mapping map[string]string
-}
-
-func NewExpander() *Expander {
-	expander := Expander{}
-	expander.mapping = make(map[string]string)
-
-	return &expander
-
-}
-
-func (e *Expander) ParseConfigFile(configfile string) {
+func ParseConfigFile(configfile string, mapping map[string]string) {
 	if configfile == "" {
 		return
 	}
@@ -30,14 +16,10 @@ func (e *Expander) ParseConfigFile(configfile string) {
 	}
 
 	for _, p := range *pairs {
-		e.mapping[p.Key] = p.Value
+		mapping[p.Key] = p.Value
 	}
 }
 
-func (e *Expander) Expand(s string) string {
-	return e.mapping[s]
-}
-
-func (e *Expander) IsEmptyMap() bool {
-	return len(e.mapping) == 0
+func Expand(s string, mapping map[string]string) string {
+	return mapping[s]
 }

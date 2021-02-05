@@ -27,11 +27,11 @@ var expandCmd = &cobra.Command{
 			customConfigFile = os.Getenv("EXPANDER_CUSTOM_CONF")
 		}
 
-		expander := expander.NewExpander()
-		expander.ParseConfigFile(generatedConfigFile)
-		expander.ParseConfigFile(customConfigFile)
+		abbreviations := make(map[string]string)
+		expander.ParseConfigFile(generatedConfigFile, abbreviations)
+		expander.ParseConfigFile(customConfigFile, abbreviations)
 
-		if expander.IsEmptyMap() {
+		if len(abbreviations) == 0 {
 			fmt.Println("No mapping found, exiting")
 			return
 		}
@@ -42,9 +42,12 @@ var expandCmd = &cobra.Command{
 			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
 		}
 		// This is where the magic happens
+		out := ""
 		for _, c := range input {
-			fmt.Print(expander.Expand(c))
+			out = out + expander.Expand(c, abbreviations)
 		}
+
+		fmt.Println(out)
 
 	},
 }
