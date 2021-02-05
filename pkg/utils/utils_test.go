@@ -27,6 +27,10 @@ func TestReadPairsfromFile(t *testing.T) {
 			t.Fatalf("Mismatch while reading in the example mapping. Ezpected %s but got %s", expected[i], abbreviations[i])
 		}
 	}
+
+	if ReadPairsFromFile("") != nil {
+		t.Fatalf("Shouldn't try to read empty filename, bit it does")
+	}
 }
 
 func TestEquals(t *testing.T) {

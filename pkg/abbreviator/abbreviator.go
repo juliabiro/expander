@@ -7,7 +7,10 @@ import (
 )
 
 func ParseConfigFile(configfile string, abbreviations *[]utils.StringPair) {
-	*abbreviations = append(*abbreviations, *(utils.ReadPairsFromFile(configfile))...)
+	pairs := utils.ReadPairsFromFile(configfile)
+	if pairs != nil {
+		*abbreviations = append(*abbreviations, (*pairs)...)
+	}
 }
 
 func abbreviate(ctx string, abbreviation_mapping []utils.StringPair) string {

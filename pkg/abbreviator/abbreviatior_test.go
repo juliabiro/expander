@@ -42,6 +42,12 @@ func TestAbbreviateExpressionsNoRepeats(t *testing.T) {
 
 func TestParseConfigFile(t *testing.T) {
 	abbreviations := make([]utils.StringPair, 0)
+
+	ParseConfigFile("", &abbreviations)
+	if len(abbreviations) != 0 {
+		t.Fatalf("Shouldn't read anything from a file with no name")
+	}
+
 	ParseConfigFile("../../example_mapping", &abbreviations)
 
 	expected := []utils.StringPair{
@@ -56,7 +62,6 @@ func TestParseConfigFile(t *testing.T) {
 	}
 
 	if len(abbreviations) != len(expected) {
-		t.Fatalf("%s", abbreviations)
 		t.Fatalf("Parsing example_mapping, I didn't get the expected length of data")
 		return
 	}
