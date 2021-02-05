@@ -11,7 +11,7 @@ import (
 var generatedConfig string
 var customConfig string
 
-func parseArguments(args []string) (generatedConfig string, customConfig string, input []string) {
+func parseExArguments(args []string) (generatedConfig string, customConfig string, input []string) {
 	generatedConfigFile := generatedConfig
 	customConfigFile := customConfig
 
@@ -56,7 +56,7 @@ var expandCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// get parameters
-		generatedConfigFile, customConfigFile, expressions := parseArguments(args)
+		generatedConfigFile, customConfigFile, expressions := parseExArguments(args)
 
 		// perform logic
 		out := expand(generatedConfigFile, customConfigFile, expressions)

@@ -39,6 +39,20 @@ func ReadPairsFromFile(file string) *[]StringPair {
 	return &mapping
 
 }
+
+func WriteToFile(out string, filename string) {
+	if filename == "" {
+		fmt.Println("Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_GENERATED_CONF env var.")
+
+	} else {
+		err := ioutil.WriteFile(filename, []byte(out), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Mapping saved to %s", filename)
+	}
+}
+
 func MakeSortedString(m map[string]string) string {
 	out := ""
 	for k, v := range m {
