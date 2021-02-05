@@ -1,7 +1,7 @@
 # expander
 A commandline go tool that expands abbreviations based on a predefined list. The abbreviations can be automatically constructed with teh same tool, based on a mapping. 
 
-## What is the problem that I am tryong to solve?
+## What is the problem that I am trying to solve?
 
 In my work I often need to type long strings that really only carry a few characters of information. I want to be able to type only a few characters and a tool that expands them into the valid input I need. 
 
