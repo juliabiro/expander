@@ -30,5 +30,4 @@ func TestParseInput(t *testing.T) {
 			}
 		}
 	}
-
 }

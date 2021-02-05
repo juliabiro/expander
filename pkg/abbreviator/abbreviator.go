@@ -12,6 +12,9 @@ func ParseConfigFile(configfile string, abbreviations []utils.StringPair) {
 func abbreviate(ctx string, abbreviation_mapping []utils.StringPair) string {
 	res := strings.Repeat(ctx, 1)
 	for _, sp := range abbreviation_mapping {
+		if sp.Key == "" {
+			continue
+		}
 		res = strings.ReplaceAll(res, sp.Key, sp.Value)
 	}
 	return res
