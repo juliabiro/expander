@@ -12,6 +12,32 @@ type StringPair struct {
 	Value string
 }
 
+func (s *StringPair) Equals(s2 *StringPair) bool {
+	if s2 == nil {
+		return false
+	}
+	return s.Key == s2.Key && s.Value == s2.Value
+}
+
+func processPair(pairs []string) *StringPair {
+	f, s := "", ""
+	switch len(pairs) {
+	case 0:
+		return nil
+	case 1:
+		f = strings.TrimSpace(pairs[0])
+		s = ""
+	default:
+		f = strings.TrimSpace(pairs[0])
+		s = strings.TrimSpace(pairs[1])
+	}
+
+	if f == "" {
+		return nil
+	}
+	return &StringPair{f, s}
+}
+
 func ReadPairsFromFile(file string) *[]StringPair {
 	mapping := make([]StringPair, 0)
 	data, err := ioutil.ReadFile(file)
@@ -22,19 +48,11 @@ func ReadPairsFromFile(file string) *[]StringPair {
 
 	for _, line := range strings.Split(string(data), "\n") {
 		pairs := strings.Split(line, ":")
-		f, s := "", ""
-		switch len(pairs) {
-		case 0:
-			continue
-		case 1:
-			f = strings.TrimSpace(pairs[0])
-			s = ""
-		default:
-			f = strings.TrimSpace(pairs[0])
-			s = strings.TrimSpace(pairs[1])
-		}
+		p := processPair(pairs)
 
-		mapping = append(mapping, StringPair{f, s})
+		if p != nil {
+			mapping = append(mapping, *p)
+		}
 	}
 	return &mapping
 
