@@ -42,11 +42,8 @@ func TestAbbreviateExpressionsNoRepeats(t *testing.T) {
 
 func TestParseConfigFile(t *testing.T) {
 	abbreviations := make([]utils.StringPair, 0)
-	ParseConfigFile("../../example_mapping", abbreviations)
-	if len(abbreviations) == 0 {
-		t.Fatalf("failed to parse example mapping file")
-		return
-	}
+	ParseConfigFile("../../example_mapping", &abbreviations)
+
 	expected := []utils.StringPair{
 		utils.StringPair{"apple", "a"},
 		utils.StringPair{"pear", "p"},
@@ -57,6 +54,13 @@ func TestParseConfigFile(t *testing.T) {
 		utils.StringPair{"-0", ""},
 		utils.StringPair{"-", ""},
 	}
+
+	if len(abbreviations) != len(expected) {
+		t.Fatalf("%s", abbreviations)
+		t.Fatalf("Parsing example_mapping, I didn't get the expected length of data")
+		return
+	}
+
 	for i, _ := range abbreviations {
 		if abbreviations[i] != expected[i] {
 			t.Fatalf("Mismatch while reading in the example mapping. Ezpected %s but got %s", expected[i], abbreviations[i])

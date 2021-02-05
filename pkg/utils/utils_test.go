@@ -18,7 +18,7 @@ func TestReadPairsfromFile(t *testing.T) {
 	}
 
 	if len(abbreviations) != len(expected) {
-		t.Fatalf("reading in example_mapping, I didn't get the epexted length of data")
+		t.Fatalf("reading in example_mapping, I didn't get the expected length of data")
 		return
 	}
 

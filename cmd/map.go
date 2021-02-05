@@ -26,7 +26,7 @@ func parseMapArguments(args []string) (generatedConfigFile string, input []strin
 
 func abbreviate(expressions []string) map[string]string {
 	abbreviations := make([]utils.StringPair, 0)
-	abbreviator.ParseConfigFile(expanderAbbrevations, abbreviations)
+	abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
 
 	if len(abbreviations) == 0 {
 		fmt.Println("No mapping found.")
