@@ -3,21 +3,55 @@ package cmd
 import (
 	"fmt"
 	"github.com/juliabiro/expander/pkg/abbreviator"
+	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
 	"os"
 )
 
-func writeToFile(out string, filename string) {
-	err := ioutil.WriteFile(filename, []byte(out), 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 var expanderAbbrevations string
 var expanderGeneratedConf string
+
+func parseMapArguments(args []string) (generatedConfigFile string, input []string) {
+	input, err := ParseInput(args)
+	if err != nil {
+		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
+		return "", nil
+	}
+	configfile := expanderGeneratedConf
+	if configfile == "" {
+		configfile = os.Getenv("EXPANDER_GENERATED_CONF")
+	}
+	return configfile, input
+}
+
+func abbreviate(expressions []string) map[string]string {
+	abbreviations := make([]utils.StringPair, 0)
+	abbreviator.ParseConfigFile(expanderAbbrevations, abbreviations)
+
+	if len(abbreviations) == 0 {
+		fmt.Println("No mapping found.")
+		return nil
+	}
+
+	// This is where the magic happens
+	return abbreviator.AbbreviateExpressions(expressions, abbreviations)
+}
+
+func printOutput(data map[string]string, targetfile string) {
+	if len(data) == 0 {
+		fmt.Println("No abbreviations made. Not saving anything.")
+		return
+	}
+
+	// format output
+	out := utils.MakeSortedString(data)
+
+	// print output
+	fmt.Println("Generated Abbreviations:")
+	fmt.Println(out)
+
+	utils.WriteToFile(out, targetfile)
+}
 
 var mapCmd = &cobra.Command{
 	Use:   "map",
@@ -27,39 +61,15 @@ var mapCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// process pipe content here
+		// get parameters
+		generatedConfigFile, expressions := parseMapArguments(args)
 
-		abbreviations := abbreviator.NewAbbreviator()
-		abbreviations.ParseConfigFile(expanderAbbrevations)
+		//perform logic
+		data := abbreviate(expressions)
 
-		if abbreviations.IsEmptyMap() {
-			fmt.Println("No mapping found, exiting")
-			return
-		}
+		//print output
+		printOutput(data, generatedConfigFile)
 
-		input, err := ParseInput(args)
-		if err != nil {
-			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		}
-
-		// This is where the magic happens
-		out := abbreviations.GenerateMappingString(input)
-
-		configfile := expanderGeneratedConf
-		if configfile == "" {
-			configfile = os.Getenv("EXPANDER_GENERATED_CONF")
-		}
-
-		fmt.Println("Generated Abbreviations:")
-		fmt.Println(out)
-
-		if configfile == "" {
-			fmt.Println("Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_GENERATED_CONF env var.")
-
-		} else {
-			writeToFile(out, configfile)
-			fmt.Printf("Mapping saved to %s", configfile)
-		}
 	},
 }
 

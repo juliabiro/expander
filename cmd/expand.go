@@ -5,10 +5,47 @@ import (
 	"github.com/juliabiro/expander/pkg/expander"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
 )
 
 var generatedConfig string
 var customConfig string
+
+func parseExArguments(args []string) (generatedConfig string, customConfig string, input []string) {
+	generatedConfigFile := generatedConfig
+	customConfigFile := customConfig
+
+	if generatedConfigFile == "" {
+		generatedConfigFile = os.Getenv("EXPANDER_GENERATED_CONF")
+	}
+	if customConfigFile == "" {
+		customConfigFile = os.Getenv("EXPANDER_CUSTOM_CONF")
+	}
+	input, err := ParseInput(args)
+
+	if err != nil {
+		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
+		return "", "", nil
+	}
+
+	return generatedConfigFile, customConfigFile, input
+
+}
+
+func expand(generatedConfigFile string, customConfigFile string, expressions []string) []string {
+
+	abbreviations := make(map[string]string)
+	expander.ParseConfigFile(generatedConfigFile, abbreviations)
+	expander.ParseConfigFile(customConfigFile, abbreviations)
+
+	if len(abbreviations) == 0 {
+		fmt.Println("No mapping found, exiting")
+		return nil
+	}
+
+	return expander.ExpandExpressions(expressions, abbreviations)
+}
+
 var expandCmd = &cobra.Command{
 	Use:   "ex",
 	Short: "Expand known abbreviations",
@@ -17,34 +54,15 @@ var expandCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		generatedConfigFile := generatedConfig
-		customConfigFile := customConfig
 
-		if generatedConfigFile == "" {
-			generatedConfigFile = os.Getenv("EXPANDER_GENERATED_CONF")
-		}
-		if customConfigFile == "" {
-			customConfigFile = os.Getenv("EXPANDER_CUSTOM_CONF")
-		}
+		// get parameters
+		generatedConfigFile, customConfigFile, expressions := parseExArguments(args)
 
-		expander := expander.NewExpander()
-		expander.ParseConfigFile(generatedConfigFile)
-		expander.ParseConfigFile(customConfigFile)
+		// perform logic
+		out := expand(generatedConfigFile, customConfigFile, expressions)
 
-		if expander.IsEmptyMap() {
-			fmt.Println("No mapping found, exiting")
-			return
-		}
-
-		input, err := ParseInput(args)
-
-		if err != nil {
-			fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		}
-		// This is where the magic happens
-		for _, c := range input {
-			fmt.Print(expander.Expand(c))
-		}
+		// print output
+		fmt.Println(strings.Join(out, " "))
 
 	},
 }
