@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -11,12 +12,12 @@ type StringPair struct {
 	Value string
 }
 
-func ReadPairsFromFile(file string) (*[]StringPair, error) {
+func ReadPairsFromFile(file string) *[]StringPair {
 	mapping := make([]StringPair, 0)
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatalf("Failed to open configfile %s, error is %s.", file, err)
-		return nil, err
+		return nil
 	}
 
 	for _, line := range strings.Split(string(data), "\n") {
@@ -35,6 +36,21 @@ func ReadPairsFromFile(file string) (*[]StringPair, error) {
 
 		mapping = append(mapping, StringPair{f, s})
 	}
-	return &mapping, nil
+	return &mapping
 
+}
+func MakeSortedString(m map[string]string) string {
+	out := ""
+	for k, v := range m {
+		if k == "" {
+			continue
+		}
+		if k == v {
+			continue
+		}
+		out = out + fmt.Sprintf("%s: %s\n", k, v)
+
+	}
+
+	return out
 }

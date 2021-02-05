@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/juliabiro/expander/pkg/abbreviator"
+	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
@@ -28,8 +29,8 @@ var mapCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// process pipe content here
-
-		abbreviations := abbreviator.ParseConfigFile(expanderAbbrevations)
+		abbreviations := make([]utils.StringPair, 0)
+		abbreviator.ParseConfigFile(expanderAbbrevations, abbreviations)
 
 		if len(abbreviations) == 0 {
 			fmt.Println("No mapping found, exiting")
@@ -42,8 +43,9 @@ var mapCmd = &cobra.Command{
 		}
 
 		// This is where the magic happens
-		out := abbreviator.GenerateMappingString(input, abbreviations)
+		data := abbreviator.AbbreviateExpressions(input, abbreviations)
 
+		out := utils.MakeSortedString(data)
 		configfile := expanderGeneratedConf
 		if configfile == "" {
 			configfile = os.Getenv("EXPANDER_GENERATED_CONF")
