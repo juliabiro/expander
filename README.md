@@ -30,7 +30,7 @@ $ expander ex "a23z" --custom-config ./example.conf
 apple-23-z
 ```
 
-You can specify 2 config files, with the flags`--generated-config` and `--custom-config` (the latter overwrites the former). Instead of the flags, you can use the `EXPANDER_GENERATED_CONF` and `EXPANDER_CUSTOM_CONF` environment variables. 
+You can specify 2 config files, with the flags`--generated-config` and `--custom-config`. They are both used, if there is a collision, the custom config overwites the generated. Instead of the flags, you can use the `EXPANDER_GENERATED_CONF` and `EXPANDER_CUSTOM_CONF` environment variables. 
 
 The config files need to take the following format:
 ```
@@ -54,9 +54,10 @@ $ expander map "apple-23-z" --abbrevations example_mapping
 The program will print the generated abbreviations list. If you want to, you can save the generated list to a file and use it later for expansion, by specifying the `--generated-config` flag or setting the `EXPANDER_GENERATED_CONF` environment variable. 
 
 
-#### How is the abbreviations mapping used?
+#### How are the abbreviations mapping used?
 
-You can abbreviate anything to an empty string, this way simply removing it. 
+All occurances of the longer string are replaced with the shorter version. 
+You can map any long string anything to an empty string, this way simply removing it. 
 There is no regex support, there is only a simple string match. 
 The abbreviations are executed in the order you define them, so if you have abbreviations to expressions that are prefixes to each other, make sure to specify the abbreviation for the more specific first. 
 
@@ -64,7 +65,7 @@ The abbreviations are executed in the order you define them, so if you have abbr
 
 1. generate a space-separated list of kubernetes contexts
 ```
-kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2|tr  "\n" " "
+kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2
 ```
 ``` 
 production-001-domain1.com production-001-domain2.com staging-001-domain1.com staging-002-domain1.com
@@ -76,7 +77,7 @@ See `example_mapping` as an example.
 
 3. Generate the abbreviations and save them to a file
 ```
-$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2|tr  "\n" " "` 
+$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` 
 ```
 
 ```
@@ -92,19 +93,19 @@ Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_
 Check the output, and if it's right, rerun the command, this time specifying the path to where the map should be saved with the `--generated-config` flag. 
 
 ```
-$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2|tr  "\n" " "` --generated-config /path/to/my/configiles 
+$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` --generated-config /path/to/my/configiles 
 ```
 
 4. Use the expander to expand the context name
 ```
-$ export  EXPANDER_GENERATED_CONF=/path/to/my/configiles 
+$ export  EXPANDER_GENERATED_CONF=/path/to/my/configfiles 
 $ expander ex "d02dl"
 
 staging-002-domain1.com
 ```
 
 5. Create a function that uses the expander when `kubectl` is called, and make an alias for it (eg in your .aliases file). 
-(This happens to be fish shell, nut bash, but you get the gist)
+(This happens to be fish shell, not bash, but you get the gist)
 
 ```
 function kubectl_context
@@ -121,7 +122,7 @@ k get pods p01d1
 
 And it will execute 
 ``` 
-kubectl get pod --context production-001-domain1.com
+kubectl get pods --context production-001-domain1.com
 ```
 
 Just don't forget to rerun the map generation when the set of contexts you have access to changes. 
@@ -129,6 +130,5 @@ Just don't forget to rerun the map generation when the set of contexts you have 
 
 ## future work
 
-- tests (khm)
 - support for multiple generated config files?
 - support for shell autocompletion
