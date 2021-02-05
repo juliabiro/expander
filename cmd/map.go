@@ -29,13 +29,28 @@ func abbreviate(expressions []string) map[string]string {
 	abbreviator.ParseConfigFile(expanderAbbrevations, abbreviations)
 
 	if len(abbreviations) == 0 {
-		fmt.Println("No mapping found, exiting")
+		fmt.Println("No mapping found.")
 		return nil
 	}
 
 	// This is where the magic happens
 	return abbreviator.AbbreviateExpressions(expressions, abbreviations)
+}
 
+func printOutput(data map[string]string, targetfile string) {
+	if len(data) == 0 {
+		fmt.Println("No abbreviations made. Not saving anything.")
+		return
+	}
+
+	// format output
+	out := utils.MakeSortedString(data)
+
+	// print output
+	fmt.Println("Generated Abbreviations:")
+	fmt.Println(out)
+
+	utils.WriteToFile(out, targetfile)
 }
 
 var mapCmd = &cobra.Command{
@@ -52,14 +67,9 @@ var mapCmd = &cobra.Command{
 		//perform logic
 		data := abbreviate(expressions)
 
-		// format putput
-		out := utils.MakeSortedString(data)
+		//print output
+		printOutput(data, generatedConfigFile)
 
-		// print output
-		fmt.Println("Generated Abbreviations:")
-		fmt.Println(out)
-
-		utils.WriteToFile(out, generatedConfigFile)
 	},
 }
 
