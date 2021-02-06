@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -38,6 +39,26 @@ func processPair(pairs []string) *StringPair {
 	return &StringPair{f, s}
 }
 
+type ExpanderData struct {
+	AbbreviationRules []map[string]string `json:"abbreviation_rules"`
+	GeneratedConfig   map[string]string   `json:"generated_config"`
+	CustomConfig      map[string]string   `json:"custom_config"`
+}
+
+func ReadDataFromFile(file string) *ExpanderData {
+	if file == "" {
+		return nil
+	}
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Fatalf("Failed to open configfile %s, error is %s.", file, err)
+		return nil
+	}
+
+	ed := ExpanderData{}
+	json.Unmarshal(data, &ed)
+	return &ed
+}
 func ReadPairsFromFile(file string) *[]StringPair {
 	if file == "" {
 		return nil
