@@ -1,6 +1,7 @@
 package abbreviator
 
 import (
+	"errors"
 	"fmt"
 	"github.com/juliabiro/expander/pkg/utils"
 	"strings"
@@ -32,18 +33,17 @@ func abbreviate(ctx string, abbreviation_mapping []map[string]string) string {
 	return res
 }
 
-func AbbreviateExpressions(expressions []string, abbreviation_mapping []map[string]string) map[string]string {
-	data := make(map[string]string)
+func AbbreviateExpressions(expressions []string, data *utils.ExpanderData) error {
 	for i, word := range expressions {
-		abbr := abbreviate(word, abbreviation_mapping)
+		abbr := abbreviate(word, data.AbbreviationRules)
 		for _, word2 := range expressions[:i] {
-			if abbr == abbreviate(word2, abbreviation_mapping) {
+			if abbr == abbreviate(word2, data.AbbreviationRules) {
 				fmt.Printf("Both %s and %s abbreviate to %s. Aborting. Check you abbreviation mapping!", word, word2, abbr)
-				return nil
+				return errors.New("Abbreviation collision")
 			}
 		}
-		data[abbr] = word
+		data.GeneratedConfig[abbr] = word
 	}
 
-	return data
+	return nil
 }
