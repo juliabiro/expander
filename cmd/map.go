@@ -24,33 +24,35 @@ func parseMapArguments(args []string) (generatedConfigFile string, input []strin
 	return configfile, input
 }
 
-func abbreviate(expressions []string) map[string]string {
-	abbreviations := make([]utils.StringPair, 0)
-	abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
+func abbreviate(expressions []string) (*utils.ExpanderData, map[string]string) {
+	//abbreviations := make([]utils.StringPair, 0)
+	//abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
 
-	if len(abbreviations) == 0 {
-		fmt.Println("No mapping found.")
-		return nil
+	data := abbreviator.ParseDataFile(expanderAbbrevations)
+
+	if len(data.AbbreviationRules) == 0 {
+		fmt.Println("No abbreviations rules found.")
+		return data, nil
 	}
 
 	// This is where the magic happens
-	return abbreviator.AbbreviateExpressions(expressions, abbreviations)
+	return data, abbreviator.AbbreviateExpressions(expressions, data.AbbreviationRules)
 }
 
-func printOutput(data map[string]string, targetfile string) {
-	if len(data) == 0 {
+func printOutput(data *utils.ExpanderData, abbreviations map[string]string, targetfile string) {
+	if len(abbreviations) == 0 {
 		fmt.Println("No abbreviations made. Not saving anything.")
 		return
 	}
 
 	// format output
-	out := utils.MakeSortedString(data)
+	out := utils.MakeSortedString(abbreviations)
 
 	// print output
 	fmt.Println("Generated Abbreviations:")
 	fmt.Println(out)
 
-	utils.WriteToFile(out, targetfile)
+	//utils.WriteToFile(out, targetfile)
 }
 
 var mapCmd = &cobra.Command{
@@ -65,10 +67,10 @@ var mapCmd = &cobra.Command{
 		generatedConfigFile, expressions := parseMapArguments(args)
 
 		//perform logic
-		data := abbreviate(expressions)
+		data, abbreviations := abbreviate(expressions)
 
 		//print output
-		printOutput(data, generatedConfigFile)
+		printOutput(data, abbreviations, generatedConfigFile)
 
 	},
 }

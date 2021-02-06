@@ -13,18 +13,26 @@ func ParseConfigFile(configfile string, abbreviations *[]utils.StringPair) {
 	}
 }
 
-func abbreviate(ctx string, abbreviation_mapping []utils.StringPair) string {
+func ParseDataFile(configfile string) *utils.ExpanderData {
+	return utils.ReadDataFromFile(configfile)
+
+}
+
+func abbreviate(ctx string, abbreviation_mapping []map[string]string) string {
 	res := strings.Repeat(ctx, 1)
-	for _, sp := range abbreviation_mapping {
-		if sp.Key == "" {
-			continue
+	for _, m := range abbreviation_mapping {
+		for k, v := range m {
+			if k == "" {
+				continue
+			}
+			res = strings.ReplaceAll(res, k, v)
+
 		}
-		res = strings.ReplaceAll(res, sp.Key, sp.Value)
 	}
 	return res
 }
 
-func AbbreviateExpressions(expressions []string, abbreviation_mapping []utils.StringPair) map[string]string {
+func AbbreviateExpressions(expressions []string, abbreviation_mapping []map[string]string) map[string]string {
 	data := make(map[string]string)
 	for i, word := range expressions {
 		abbr := abbreviate(word, abbreviation_mapping)
