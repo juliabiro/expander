@@ -10,6 +10,7 @@ import (
 )
 
 var dryRun bool
+var clear bool
 
 func parseMapArguments(args []string) (input []string) {
 	configEnvVar := os.Getenv("EXPANDER_CONFIG")
@@ -26,11 +27,13 @@ func parseMapArguments(args []string) (input []string) {
 	return input
 }
 
-func abbreviate(expressions []string) (*utils.ExpanderData, error) {
-	//abbreviations := make([]utils.StringPair, 0)
-	//abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
+func abbreviate(expressions []string, clear bool) (*utils.ExpanderData, error) {
 
 	data := abbreviator.ParseDataFile(configfile)
+
+	if clear == true {
+		data.GeneratedConfig = make(map[string]string)
+	}
 
 	if !data.HasAbbreviationRules() {
 		return data, errors.New("No abbreviations rule found")
@@ -67,11 +70,10 @@ var mapCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// get parameters
-		dryRun = true
 		expressions := parseMapArguments(args)
 
 		//perform logic
-		data, err := abbreviate(expressions)
+		data, err := abbreviate(expressions, clear)
 
 		if err != nil {
 			fmt.Println(err)
@@ -86,6 +88,7 @@ var mapCmd = &cobra.Command{
 
 func init() {
 	mapCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", true, "toggles dry-run mode. When False, the generated abbreviations are saved to the config file. Default is true")
+	mapCmd.PersistentFlags().BoolVar(&clear, "clear-existing-conf", false, "When true, the mapping replaces the exisiting generated conf. When false, it just adds to it (also overwrites it). Default is false")
 
 	rootCmd.AddCommand(mapCmd)
 }
