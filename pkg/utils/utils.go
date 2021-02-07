@@ -65,7 +65,7 @@ func ReadDataFromFile(file string) *ExpanderData {
 }
 
 func WriteToFile(data *ExpanderData, filename string) {
-	jsondata, _ := json.Marshal(data)
+	jsondata, _ := json.MarshalIndent(data, "", "  ")
 	err := ioutil.WriteFile(filename, jsondata, 0644)
 	if err != nil {
 		log.Fatal(err)
