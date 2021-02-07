@@ -1,44 +1,47 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 )
 
-type StringPair struct {
-	Key   string
-	Value string
+type ExpanderData struct {
+	AbbreviationRules []map[string]string `json:"abbreviation_rules"`
+	GeneratedConfig   map[string]string   `json:"generated_config"`
+	CustomConfig      map[string]string   `json:"custom_config"`
 }
 
-func (s *StringPair) Equals(s2 *StringPair) bool {
-	if s2 == nil {
+func comparemaps(m1, m2 map[string]string) bool {
+	if len(m1) != len(m2) {
 		return false
 	}
-	return s.Key == s2.Key && s.Value == s2.Value
+	for k, v := range m1 {
+		val, ok := m2[k]
+		if !ok {
+			return false
+		}
+		if v != val {
+			return false
+		}
+	}
+	return true
 }
+func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
+	ret := true
+	ret = ret && comparemaps(e1.GeneratedConfig, e2.GeneratedConfig)
+	ret = ret && comparemaps(e1.CustomConfig, e2.CustomConfig)
 
-func processPair(pairs []string) *StringPair {
-	f, s := "", ""
-	switch len(pairs) {
-	case 0:
-		return nil
-	case 1:
-		f = strings.TrimSpace(pairs[0])
-		s = ""
-	default:
-		f = strings.TrimSpace(pairs[0])
-		s = strings.TrimSpace(pairs[1])
+	for i, _ := range e1.AbbreviationRules {
+		ret = ret && comparemaps(e1.AbbreviationRules[i], e2.AbbreviationRules[i])
 	}
 
-	if f == "" {
-		return nil
-	}
-	return &StringPair{f, s}
+	return ret
+
 }
 
-func ReadPairsFromFile(file string) *[]StringPair {
+func ReadDataFromFile(file string) *ExpanderData {
 	if file == "" {
 		return nil
 	}
@@ -48,17 +51,9 @@ func ReadPairsFromFile(file string) *[]StringPair {
 		return nil
 	}
 
-	mapping := make([]StringPair, 0)
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		p := processPair(pairs)
-
-		if p != nil {
-			mapping = append(mapping, *p)
-		}
-	}
-	return &mapping
-
+	ed := ExpanderData{}
+	json.Unmarshal(data, &ed)
+	return &ed
 }
 
 func WriteToFile(out string, filename string) {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/juliabiro/expander/pkg/abbreviator"
 	"github.com/juliabiro/expander/pkg/utils"
@@ -24,33 +25,34 @@ func parseMapArguments(args []string) (generatedConfigFile string, input []strin
 	return configfile, input
 }
 
-func abbreviate(expressions []string) map[string]string {
-	abbreviations := make([]utils.StringPair, 0)
-	abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
+func abbreviate(expressions []string) (*utils.ExpanderData, error) {
+	//abbreviations := make([]utils.StringPair, 0)
+	//abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
 
-	if len(abbreviations) == 0 {
-		fmt.Println("No mapping found.")
-		return nil
+	data := abbreviator.ParseDataFile(expanderAbbrevations)
+
+	if len(data.AbbreviationRules) == 0 {
+		return data, errors.New("No abbreviations rule found")
 	}
 
 	// This is where the magic happens
-	return abbreviator.AbbreviateExpressions(expressions, abbreviations)
+	err := abbreviator.AbbreviateExpressions(expressions, data)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
 }
 
-func printOutput(data map[string]string, targetfile string) {
-	if len(data) == 0 {
-		fmt.Println("No abbreviations made. Not saving anything.")
-		return
-	}
+func printOutput(data *utils.ExpanderData, targetfile string) {
 
 	// format output
-	out := utils.MakeSortedString(data)
+	out := utils.MakeSortedString(data.GeneratedConfig)
 
 	// print output
 	fmt.Println("Generated Abbreviations:")
 	fmt.Println(out)
 
-	utils.WriteToFile(out, targetfile)
+	//utils.WriteToFile(out, targetfile)
 }
 
 var mapCmd = &cobra.Command{
@@ -65,7 +67,12 @@ var mapCmd = &cobra.Command{
 		generatedConfigFile, expressions := parseMapArguments(args)
 
 		//perform logic
-		data := abbreviate(expressions)
+		data, err := abbreviate(expressions)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
 		//print output
 		printOutput(data, generatedConfigFile)
