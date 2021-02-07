@@ -5,44 +5,40 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 )
-
-type StringPair struct {
-	Key   string
-	Value string
-}
-
-func (s *StringPair) Equals(s2 *StringPair) bool {
-	if s2 == nil {
-		return false
-	}
-	return s.Key == s2.Key && s.Value == s2.Value
-}
-
-func processPair(pairs []string) *StringPair {
-	f, s := "", ""
-	switch len(pairs) {
-	case 0:
-		return nil
-	case 1:
-		f = strings.TrimSpace(pairs[0])
-		s = ""
-	default:
-		f = strings.TrimSpace(pairs[0])
-		s = strings.TrimSpace(pairs[1])
-	}
-
-	if f == "" {
-		return nil
-	}
-	return &StringPair{f, s}
-}
 
 type ExpanderData struct {
 	AbbreviationRules []map[string]string `json:"abbreviation_rules"`
 	GeneratedConfig   map[string]string   `json:"generated_config"`
 	CustomConfig      map[string]string   `json:"custom_config"`
+}
+
+func comparemaps(m1, m2 map[string]string) bool {
+	if len(m1) != len(m2) {
+		return false
+	}
+	for k, v := range m1 {
+		val, ok := m2[k]
+		if !ok {
+			return false
+		}
+		if v != val {
+			return false
+		}
+	}
+	return true
+}
+func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
+	ret := true
+	ret = ret && comparemaps(e1.GeneratedConfig, e2.GeneratedConfig)
+	ret = ret && comparemaps(e1.CustomConfig, e2.CustomConfig)
+
+	for i, _ := range e1.AbbreviationRules {
+		ret = ret && comparemaps(e1.AbbreviationRules[i], e2.AbbreviationRules[i])
+	}
+
+	return ret
+
 }
 
 func ReadDataFromFile(file string) *ExpanderData {
@@ -58,28 +54,6 @@ func ReadDataFromFile(file string) *ExpanderData {
 	ed := ExpanderData{}
 	json.Unmarshal(data, &ed)
 	return &ed
-}
-func ReadPairsFromFile(file string) *[]StringPair {
-	if file == "" {
-		return nil
-	}
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		log.Fatalf("Failed to open configfile %s, error is %s.", file, err)
-		return nil
-	}
-
-	mapping := make([]StringPair, 0)
-	for _, line := range strings.Split(string(data), "\n") {
-		pairs := strings.Split(line, ":")
-		p := processPair(pairs)
-
-		if p != nil {
-			mapping = append(mapping, *p)
-		}
-	}
-	return &mapping
-
 }
 
 func WriteToFile(out string, filename string) {

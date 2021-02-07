@@ -7,13 +7,6 @@ import (
 	"strings"
 )
 
-func ParseConfigFile(configfile string, abbreviations *[]utils.StringPair) {
-	pairs := utils.ReadPairsFromFile(configfile)
-	if pairs != nil {
-		*abbreviations = append(*abbreviations, (*pairs)...)
-	}
-}
-
 func ParseDataFile(configfile string) *utils.ExpanderData {
 	return utils.ReadDataFromFile(configfile)
 
