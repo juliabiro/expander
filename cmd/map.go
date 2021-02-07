@@ -9,29 +9,33 @@ import (
 	"os"
 )
 
-var expanderAbbrevations string
-var expanderGeneratedConf string
+var dryRun bool
+var clear bool
 
-func parseMapArguments(args []string) (generatedConfigFile string, input []string) {
+func parseMapArguments(args []string) (input []string) {
+	configEnvVar := os.Getenv("EXPANDER_CONFIG")
+
+	if configEnvVar != "" {
+		configfile = configEnvVar
+	}
+
 	input, err := ParseInput(args)
 	if err != nil {
 		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		return "", nil
+		return nil
 	}
-	configfile := expanderGeneratedConf
-	if configfile == "" {
-		configfile = os.Getenv("EXPANDER_GENERATED_CONF")
-	}
-	return configfile, input
+	return input
 }
 
-func abbreviate(expressions []string) (*utils.ExpanderData, error) {
-	//abbreviations := make([]utils.StringPair, 0)
-	//abbreviator.ParseConfigFile(expanderAbbrevations, &abbreviations)
+func abbreviate(expressions []string, clear bool) (*utils.ExpanderData, error) {
 
-	data := abbreviator.ParseDataFile(expanderAbbrevations)
+	data := abbreviator.ParseDataFile(configfile)
 
-	if len(data.AbbreviationRules) == 0 {
+	if clear == true {
+		data.GeneratedConfig = make(map[string]string)
+	}
+
+	if !data.HasAbbreviationRules() {
 		return data, errors.New("No abbreviations rule found")
 	}
 
@@ -43,7 +47,7 @@ func abbreviate(expressions []string) (*utils.ExpanderData, error) {
 	return data, nil
 }
 
-func printOutput(data *utils.ExpanderData, targetfile string) {
+func printOutput(data *utils.ExpanderData, configfile string) {
 
 	// format output
 	out := utils.MakeSortedString(data.GeneratedConfig)
@@ -52,7 +56,9 @@ func printOutput(data *utils.ExpanderData, targetfile string) {
 	fmt.Println("Generated Abbreviations:")
 	fmt.Println(out)
 
-	//utils.WriteToFile(out, targetfile)
+	if !dryRun {
+		utils.WriteToFile(data, configfile)
+	}
 }
 
 var mapCmd = &cobra.Command{
@@ -64,10 +70,10 @@ var mapCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// get parameters
-		generatedConfigFile, expressions := parseMapArguments(args)
+		expressions := parseMapArguments(args)
 
 		//perform logic
-		data, err := abbreviate(expressions)
+		data, err := abbreviate(expressions, clear)
 
 		if err != nil {
 			fmt.Println(err)
@@ -75,14 +81,14 @@ var mapCmd = &cobra.Command{
 		}
 
 		//print output
-		printOutput(data, generatedConfigFile)
+		printOutput(data, configfile)
 
 	},
 }
 
 func init() {
-	mapCmd.PersistentFlags().StringVar(&expanderAbbrevations, "abbreviations", "", "file containing the abbreviations to be applied")
-	mapCmd.PersistentFlags().StringVar(&expanderGeneratedConf, "generated-config", "", "file to which generated conf should be written. Default is $EXPANDER_GENERATED_CONF")
+	mapCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", true, "toggles dry-run mode. When False, the generated abbreviations are saved to the config file. Default is true")
+	mapCmd.PersistentFlags().BoolVar(&clear, "clear-existing-conf", false, "When true, the mapping replaces the exisiting generated conf. When false, it just adds to it (also overwrites it). Default is false")
 
 	rootCmd.AddCommand(mapCmd)
 }

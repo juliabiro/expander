@@ -1,16 +1,32 @@
 {
-  "abbreviation_rules":[
-    { "apple": "a" },
-    { "pear": "p" },
-    { "domain1.com": "d1" },
-    { "domain2.com": "d2" },
-    { "production": "p" },
-    { "staging": "s" },
-    { "-0": ""},
-    { "-":""}
- ]  ,
-  "generated_config":{
-    "a23z":"apple-23-z"
+  "abbreviation_rules": [
+    {
+      "apple": "a"
+    },
+    {
+      "pear": "p"
+    },
+    {
+      "domain1.com": "d1"
+    },
+    {
+      "domain2.com": "d2"
+    },
+    {
+      "production": "p"
+    },
+    {
+      "staging": "s"
+    },
+    {
+      "-0": ""
+    },
+    {
+      "-": ""
+    }
+  ],
+  "generated_config": {
+    "a23z": "apple-23-z"
   },
-  "custom_config":{}
+  "custom_config": {}
 }
