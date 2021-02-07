@@ -40,18 +40,3 @@ func TestAbbreviateExpressionsNoRepeats(t *testing.T) {
 	}
 
 }
-
-func TestParseDataFile(t *testing.T) {
-	data := ParseDataFile("")
-	if data != nil {
-		t.Fatalf("Shouldn't read anything from a file with no name")
-	}
-
-	e1 := utils.ReadDataFromFile("../../example_conf.json")
-	e2 := ParseDataFile("../../example_conf.json")
-
-	if !e1.IsIdentical(e2) {
-		t.Fatalf("ParseDataFile shou;dnt do anything extra upon the utils version")
-	}
-
-}

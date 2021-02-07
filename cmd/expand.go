@@ -40,7 +40,7 @@ var expandCmd = &cobra.Command{
 		expressions := parseExArguments(args)
 
 		// perform logic
-		data := expander.ParseConfigData(configfile)
+		data := ParseConfigData(configfile, expander.ValidateData)
 		if data == nil {
 			return
 		}

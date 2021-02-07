@@ -5,7 +5,7 @@ import (
 	"github.com/juliabiro/expander/pkg/utils"
 )
 
-func validate(data *utils.ExpanderData) bool {
+func ValidateData(data *utils.ExpanderData) bool {
 	if !data.HasConfig() {
 		fmt.Println("No config found in file.")
 		return false
@@ -17,14 +17,6 @@ func validate(data *utils.ExpanderData) bool {
 		return false
 	}
 
-}
-
-func ParseConfigData(configfile string) *utils.ExpanderData {
-	data := utils.ReadDataFromFile(configfile)
-	if validate(data) {
-		return data
-	}
-	return nil
 }
 
 func expand(s string, data *utils.ExpanderData) string {

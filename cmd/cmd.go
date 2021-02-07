@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -11,6 +12,14 @@ var configfile string
 func ParseInput(args []string) ([]string, error) {
 	// this will become more complex later
 	return args, nil
+}
+
+func ParseConfigData(configfile string, validate func(*utils.ExpanderData) bool) *utils.ExpanderData {
+	data := utils.ReadDataFromFile(configfile)
+	if validate(data) {
+		return data
+	}
+	return nil
 }
 
 var rootCmd = &cobra.Command{

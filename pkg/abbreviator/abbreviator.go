@@ -7,24 +7,12 @@ import (
 	"strings"
 )
 
-func validate(e *utils.ExpanderData) bool {
+func ValidateData(e *utils.ExpanderData) bool {
 	if e.HasAbbreviationRules() {
 		return true
 	}
 	fmt.Printf("No abbreviation rules found. Check config file.")
 	return false
-}
-
-func ParseDataFile(configfile string) *utils.ExpanderData {
-	data := utils.ReadDataFromFile(configfile)
-	if data == nil {
-		return nil
-	}
-
-	if validate(data) {
-		return data
-	}
-	return nil
 }
 
 func abbreviate(ctx string, abbreviation_mapping []map[string]string) string {

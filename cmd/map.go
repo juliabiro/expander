@@ -52,7 +52,7 @@ var mapCmd = &cobra.Command{
 		expressions := parseMapArguments(args)
 
 		// get config
-		data := abbreviator.ParseDataFile(configfile)
+		data := ParseConfigData(configfile, abbreviator.ValidateData)
 		if data == nil {
 			return
 		}
