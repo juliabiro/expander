@@ -28,6 +28,7 @@ func comparemaps(m1, m2 map[string]string) bool {
 	}
 	return true
 }
+
 func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
 	ret := true
 	ret = ret && comparemaps(e1.GeneratedConfig, e2.GeneratedConfig)
@@ -43,6 +44,18 @@ func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
 
 func (e *ExpanderData) HasConfig() bool {
 	return len(e.GeneratedConfig) > 0 || len(e.CustomConfig) > 0
+}
+
+func (e *ExpanderData) IsConsistent() bool {
+	for k, v := range e.CustomConfig {
+		val, ok := e.GeneratedConfig[k]
+		if ok {
+			if val != v {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (e *ExpanderData) HasAbbreviationRules() bool {

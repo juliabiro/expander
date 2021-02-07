@@ -30,9 +30,7 @@ func parseExArguments(args []string) []string {
 func expand(expressions []string) []string {
 
 	data := expander.ParseConfigData(configfile)
-
-	if !data.HasConfig() {
-		fmt.Println("No mapping found, exiting")
+	if data == nil {
 		return nil
 	}
 

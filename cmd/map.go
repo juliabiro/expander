@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/juliabiro/expander/pkg/abbreviator"
 	"github.com/juliabiro/expander/pkg/utils"
@@ -25,26 +24,6 @@ func parseMapArguments(args []string) (input []string) {
 		return nil
 	}
 	return input
-}
-
-func abbreviate(expressions []string, clear bool) (*utils.ExpanderData, error) {
-
-	data := abbreviator.ParseDataFile(configfile)
-
-	if clear == true {
-		data.GeneratedConfig = make(map[string]string)
-	}
-
-	if !data.HasAbbreviationRules() {
-		return data, errors.New("No abbreviations rule found")
-	}
-
-	// This is where the magic happens
-	err := abbreviator.AbbreviateExpressions(expressions, data)
-	if err != nil {
-		return data, err
-	}
-	return data, nil
 }
 
 func printOutput(data *utils.ExpanderData, configfile string) {
@@ -72,9 +51,17 @@ var mapCmd = &cobra.Command{
 		// get parameters
 		expressions := parseMapArguments(args)
 
-		//perform logic
-		data, err := abbreviate(expressions, clear)
+		// get config
+		data := abbreviator.ParseDataFile(configfile)
+		if data == nil {
+			return
+		}
 
+		//perform logic
+		if clear == true {
+			data.GeneratedConfig = make(map[string]string)
+		}
+		err := abbreviator.AbbreviateExpressions(expressions, data)
 		if err != nil {
 			fmt.Println(err)
 			return
