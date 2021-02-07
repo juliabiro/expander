@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+var configfile string
+
 func ParseInput(args []string) ([]string, error) {
 	// this will become more complex later
 	return args, nil
@@ -25,4 +27,7 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+func init() {
+	rootCmd.PersistentFlags().StringVar(&configfile, "config", "", "file containing the abbreviations mapping and the generated and custom configs")
 }

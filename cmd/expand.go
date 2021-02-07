@@ -8,40 +8,35 @@ import (
 	"strings"
 )
 
-var configfile string
+func parseExArguments(args []string) []string {
 
-func parseExArguments(args []string) (string, []string) {
+	configEnvVar := os.Getenv("EXPANDER_CONFIG")
 
-	generatedConfigFile := os.Getenv("EXPANDER_CONFIG")
-
-	if configfile != "" {
-		generatedConfigFile = configfile
+	if configEnvVar != "" {
+		configfile = configEnvVar
 	}
 
 	input, err := ParseInput(args)
 
 	if err != nil {
 		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		return "", nil
+		return nil
 	}
 
-	return generatedConfigFile, input
+	return input
 
 }
 
-func expand(generatedConfigFile string, expressions []string) []string {
-	//abbreviations := make(map[string]string)
+func expand(expressions []string) []string {
 
-	//expander.ParseConfigFile(generatedConfigFile, abbreviations)
+	data := expander.ParseConfigData(configfile)
 
-	abbreviations2 := expander.ParseConfigData(generatedConfigFile)
-
-	if len(abbreviations2) == 0 {
+	if !data.HasConfig() {
 		fmt.Println("No mapping found, exiting")
 		return nil
 	}
 
-	return expander.ExpandExpressions(expressions, abbreviations2)
+	return expander.ExpandExpressions(expressions, data)
 }
 
 var expandCmd = &cobra.Command{
@@ -54,10 +49,10 @@ var expandCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// get parameters
-		generatedConfigFile, expressions := parseExArguments(args)
+		expressions := parseExArguments(args)
 
 		// perform logic
-		out := expand(generatedConfigFile, expressions)
+		out := expand(expressions)
 
 		// print output
 		fmt.Println(strings.Join(out, " "))
@@ -66,6 +61,5 @@ var expandCmd = &cobra.Command{
 }
 
 func init() {
-	expandCmd.PersistentFlags().StringVar(&configfile, "config", "", "path to the generated config file to use for expandsion. Default is the EXPANDER_GENERATED_CONF env var. ")
 	rootCmd.AddCommand(expandCmd)
 }

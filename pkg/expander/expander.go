@@ -4,24 +4,31 @@ import (
 	"github.com/juliabiro/expander/pkg/utils"
 )
 
-func ParseConfigData(configfile string) map[string]string {
+func ParseConfigData(configfile string) *utils.ExpanderData {
 	// I want to unite the 2 maps. Since I am not going to write them back, it is Ok to modify
 	data := utils.ReadDataFromFile(configfile)
-	for k, v := range data.CustomConfig {
-		data.GeneratedConfig[k] = v
+	// TODO validate config file
+	return data
+}
+
+func expand(s string, data *utils.ExpanderData) string {
+
+	val, ok := data.GeneratedConfig[s]
+	if ok {
+		return val
 	}
 
-	return data.GeneratedConfig
+	val, ok = data.CustomConfig[s]
+	if ok {
+		return val
+	}
+	return ""
 }
 
-func expand(s string, mapping map[string]string) string {
-	return mapping[s]
-}
-
-func ExpandExpressions(expressions []string, abbreviations map[string]string) []string {
+func ExpandExpressions(expressions []string, data *utils.ExpanderData) []string {
 	ret := make([]string, 0)
 	for _, c := range expressions {
-		ret = append(ret, expand(c, abbreviations))
+		ret = append(ret, expand(c, data))
 	}
 	return ret
 }

@@ -41,6 +41,14 @@ func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
 
 }
 
+func (e *ExpanderData) HasConfig() bool {
+	return len(e.GeneratedConfig) > 0 || len(e.CustomConfig) > 0
+}
+
+func (e *ExpanderData) HasAbbreviationRules() bool {
+	return len(e.AbbreviationRules) > 0
+}
+
 func ReadDataFromFile(file string) *ExpanderData {
 	if file == "" {
 		return nil
@@ -56,17 +64,13 @@ func ReadDataFromFile(file string) *ExpanderData {
 	return &ed
 }
 
-func WriteToFile(out string, filename string) {
-	if filename == "" {
-		fmt.Println("Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_GENERATED_CONF env var.")
-
-	} else {
-		err := ioutil.WriteFile(filename, []byte(out), 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Mapping saved to %s", filename)
+func WriteToFile(data *ExpanderData, filename string) {
+	jsondata, _ := json.Marshal(data)
+	err := ioutil.WriteFile(filename, jsondata, 0644)
+	if err != nil {
+		log.Fatal(err)
 	}
+	fmt.Printf("Mapping saved to %s", filename)
 }
 
 func MakeSortedString(m map[string]string) string {
