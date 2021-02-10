@@ -27,18 +27,6 @@ func parseExArguments(args []string) []string {
 
 }
 
-func expand(expressions []string) []string {
-
-	data := expander.ParseConfigData(configfile)
-
-	if !data.HasConfig() {
-		fmt.Println("No mapping found, exiting")
-		return nil
-	}
-
-	return expander.ExpandExpressions(expressions, data)
-}
-
 var expandCmd = &cobra.Command{
 	Use:   "ex",
 	Short: "Expand known abbreviations",
@@ -52,7 +40,12 @@ var expandCmd = &cobra.Command{
 		expressions := parseExArguments(args)
 
 		// perform logic
-		out := expand(expressions)
+		data := ParseConfigData(configfile, expander.ValidateData)
+		if data == nil {
+			return
+		}
+
+		out := expander.ExpandExpressions(expressions, data)
 
 		// print output
 		fmt.Println(strings.Join(out, " "))

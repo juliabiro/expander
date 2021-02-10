@@ -1,14 +1,22 @@
 package expander
 
 import (
+	"fmt"
 	"github.com/juliabiro/expander/pkg/utils"
 )
 
-func ParseConfigData(configfile string) *utils.ExpanderData {
-	// I want to unite the 2 maps. Since I am not going to write them back, it is Ok to modify
-	data := utils.ReadDataFromFile(configfile)
-	// TODO validate config file
-	return data
+func ValidateData(data *utils.ExpanderData) bool {
+	if !data.HasConfig() {
+		fmt.Println("No config found in file.")
+		return false
+	}
+	if data.IsConsistent() {
+		return true
+	} else {
+		fmt.Printf("Config file contains inconsistent data, there are colliding keys in the generated and the Custom config parts. Check configfile.")
+		return false
+	}
+
 }
 
 func expand(s string, data *utils.ExpanderData) string {
