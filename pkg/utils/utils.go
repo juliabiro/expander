@@ -30,6 +30,10 @@ func comparemaps(m1, m2 map[string]string) bool {
 }
 
 func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
+	if len(e1.AbbreviationRules) != len(e2.AbbreviationRules) {
+		return false
+	}
+
 	ret := true
 	ret = ret && comparemaps(e1.GeneratedConfig, e2.GeneratedConfig)
 	ret = ret && comparemaps(e1.CustomConfig, e2.CustomConfig)
