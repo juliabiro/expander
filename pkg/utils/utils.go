@@ -13,7 +13,7 @@ type ExpanderData struct {
 	CustomConfig      map[string]string   `json:"custom_config"`
 }
 
-func comparemaps(m1, m2 map[string]string) bool {
+func mapsAreIdentical(m1, m2 map[string]string) bool {
 	if len(m1) != len(m2) {
 		return false
 	}
@@ -30,12 +30,16 @@ func comparemaps(m1, m2 map[string]string) bool {
 }
 
 func (e1 *ExpanderData) IsIdentical(e2 *ExpanderData) bool {
+	if len(e1.AbbreviationRules) != len(e2.AbbreviationRules) {
+		return false
+	}
+
 	ret := true
-	ret = ret && comparemaps(e1.GeneratedConfig, e2.GeneratedConfig)
-	ret = ret && comparemaps(e1.CustomConfig, e2.CustomConfig)
+	ret = ret && mapsAreIdentical(e1.GeneratedConfig, e2.GeneratedConfig)
+	ret = ret && mapsAreIdentical(e1.CustomConfig, e2.CustomConfig)
 
 	for i, _ := range e1.AbbreviationRules {
-		ret = ret && comparemaps(e1.AbbreviationRules[i], e2.AbbreviationRules[i])
+		ret = ret && mapsAreIdentical(e1.AbbreviationRules[i], e2.AbbreviationRules[i])
 	}
 
 	return ret
