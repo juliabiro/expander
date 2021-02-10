@@ -3,7 +3,7 @@ A commandline go tool that expands abbreviations based on a predefined list. The
 
 ## What is the problem that I am trying to solve?
 
-In my work I often need to type long strings that really only carry a few characters of information. I want to be able to type only a few characters and a tool that expands them into the valid input I need. 
+In my work I often need to type long strings that only carry a few characters of information. As I can't type too well, I want to be able to type only a few characters and a tool that expands them into the valid input I need. 
 
 ## Installation
 
@@ -18,41 +18,62 @@ $ cd expander
 $ make build
 ```
 
-You can put the binary in your PATH. 
+This generates a binary called `expander`, that you may want to put in your PATH. 
 
 ## Use
 
-### expand abbreviations based on an already existing list
+### Expand abbreviations based on an already existing list
 
+Expand all recognized words based on a previously defined mapping. 
 ```
-$ expander ex "a23z" --custom-config ./example.conf
+$ expander ex "a23z" --config ./example_conf.json
 
 apple-23-z
 ```
 
-You can specify 2 config files, with the flags`--generated-config` and `--custom-config`. They are both used, if there is a collision, the custom config overwites the generated. Instead of the flags, you can use the `EXPANDER_GENERATED_CONF` and `EXPANDER_CUSTOM_CONF` environment variables. 
+### Generate abbreviations
 
-The config files need to take the following format:
-```
-short: long
-a: apples
-...
-```
-See `example.conf` as an example.
-
-The expander only returns the long versions of the strings found in the mapping. For unrecognized strings, nothing is returned. 
-
-### generate abbreviations
-
-You can also use the tool generate consistent abbreviations of long expressions with the `map` command. This needs the expressions to be abbreviated in a space-separated list, and the list of abbreviations to apply, in a mapping file, provided with the `--abbreviations` flag.
+Generate consistent abbreviations of long expressions, based on a predefined list of abbreviations to apply.
 
 Example:
 ```
-$ expander map "apple-23-z" --abbrevations example_mapping
+$ expander map "apple-23-z" --config ./example_conf.json
+
+Generated Abbreviations:
+a23z: apple-23-z
 ```
 
-The program will print the generated abbreviations list. If you want to, you can save the generated list to a file and use it later for expansion, by specifying the `--generated-config` flag or setting the `EXPANDER_GENERATED_CONF` environment variable. 
+The generated abbreviations can be saved to the same configfile for later use. 
 
+### Configuration
+
+`Expander` uses a single configuration file in json format, that contains both the mapping between short and log strings (for expanding) and the abbreviation rules to apply when mapping new long strings. The configfile contains 3 sections:
+- `AbbreviationRules` for the rules based on which mappings can be generated
+- `GeneratedConfig` into which generated mappings are saved
+- `CustomConfig` where the user can define extra mappings, that are never overwritten by generated mappings. 
+
+The last 2 sections need to be consistent with each other (they cannot contain the same key with different values.)
+
+See `./example_conf.json` as an example. 
+
+The configfile needs to be specified both for mapping and expanding, either with the --configfile flag, or by the EXPANDER_CONF environmental variable. 
+
+### Generating and saving mappings
+
+Generated mappings can be saved back to the same configfile that contained the abbreviation rules based on which they were created. 
+By default, the generated mapping is not saved. When the `--dry-run` flag is set to true, the newly generated mapping is added to the existing one (so keys that are already there are overwitten, but other key value-pairs remain unchanged). 
+
+Generating a mapping and saving it back to the config-file:
+```
+$ expander map "apple-23-z" --config ./example_conf.json --dry-run=false
+
+Generated Abbreviations:
+a23z: apple-23-z
+
+Mapping saved to ./example_conf.json
+```
+
+The `--clear-existing-conf` flag can be used to disregard any generated configuration previously found in the file (regardless of whether the result is saved or not).
 
 #### How are the abbreviations mapping used?
 
@@ -68,43 +89,48 @@ The abbreviations are executed in the order you define them, so if you have abbr
 kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2
 ```
 ``` 
-production-001-domain1.com production-001-domain2.com staging-001-domain1.com staging-002-domain1.com
+production-001-domain1.com
+production-001-domain2.com 
+staging-001-domain1.com 
+staging-002-domain1.com
 ```
 
-2. Create a map of abbreviations and save it to a file
+2. Create a configfile
 
-See `example_mapping` as an example. 
+See `example_conf.json` as an example. 
 
 3. Generate the abbreviations and save them to a file
 ```
-$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` 
+$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` --config ./example_conf.json
 ```
 
 ```
 Generated Abbreviations:
+a23z: apple-23-z
 p01d1: production-001-domain1.com
 p01d2: production-001-domain2.com
 s01d1: staging-001-domain1.com
 d02d1: staging-002-domain1.com
 
-Mapping not saved. To save, use the --generated-config flag or set the EXPANDER_GENERATED_CONF env var.
+Mapping not saved. To save, use the --dry-run=false flag.
 ```
 
-Check the output, and if it's right, rerun the command, this time specifying the path to where the map should be saved with the `--generated-config` flag. 
+As you see, the mapping that was already in the file is still listed in the generated abbreviations. You can remove it with the `--clear-existing-conf` flag.
+Check the output, and if it's right, rerun the command, this time `--dry-run=false` flag. 
 
 ```
-$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` --generated-config /path/to/my/configiles 
+$ expander map `kubectl config get-contexts --no-headers=true|tr -s " "|cut -d " " -f2` --config ./example_conf.json --dry-run=false
 ```
 
 4. Use the expander to expand the context name
 ```
-$ export  EXPANDER_GENERATED_CONF=/path/to/my/configfiles 
+$ export  EXPANDER_CONF=./example_conf.json # this actually needs to be an absolute path
 $ expander ex "d02dl"
 
 staging-002-domain1.com
 ```
 
-5. Create a function that uses the expander when `kubectl` is called, and make an alias for it (eg in your .aliases file). 
+5. Create a shell function that uses the expander when `kubectl` is called, and make an alias for it (eg in your .aliases file). 
 (This happens to be fish shell, not bash, but you get the gist)
 
 ```
@@ -112,6 +138,7 @@ function kubectl_context
     kubectl $argv[1..-2] --context ( expander ex "$argv[-1]" )
 end
 
+set -x EXPANED_CONF "/path/to/my/configfile"
 alias k='kubectl_context'
 ```
 
@@ -130,5 +157,4 @@ Just don't forget to rerun the map generation when the set of contexts you have 
 
 ## future work
 
-- support for multiple generated config files?
 - support for shell autocompletion

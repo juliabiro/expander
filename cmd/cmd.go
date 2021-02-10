@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
@@ -8,9 +9,20 @@ import (
 )
 
 var configfile string
+var configEnvvar string
 
 func ParseInput(args []string) ([]string, error) {
-	// this will become more complex later
+	configEnvVar := os.Getenv("EXPANDER_CONF")
+
+	if configEnvVar != "" {
+		configfile = configEnvVar
+	}
+
+	if configfile == "" {
+		return nil, errors.New("No configfile specified.")
+	}
+
+	// this may become more complex later
 	return args, nil
 }
 
@@ -38,5 +50,5 @@ func Execute() {
 	}
 }
 func init() {
-	rootCmd.PersistentFlags().StringVar(&configfile, "config", "", "file containing the abbreviations mapping and the generated and custom configs")
+	rootCmd.PersistentFlags().StringVar(&configfile, "config", "", "file containing the abbreviations mapping and the generated and custom configs. Can be also set via the EXPANDER_CONF env var")
 }

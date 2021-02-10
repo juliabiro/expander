@@ -5,26 +5,10 @@ import (
 	"github.com/juliabiro/expander/pkg/abbreviator"
 	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var dryRun bool
 var clear bool
-
-func parseMapArguments(args []string) (input []string) {
-	configEnvVar := os.Getenv("EXPANDER_CONFIG")
-
-	if configEnvVar != "" {
-		configfile = configEnvVar
-	}
-
-	input, err := ParseInput(args)
-	if err != nil {
-		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		return nil
-	}
-	return input
-}
 
 func printOutput(data *utils.ExpanderData, configfile string) {
 
@@ -35,7 +19,9 @@ func printOutput(data *utils.ExpanderData, configfile string) {
 	fmt.Println("Generated Abbreviations:")
 	fmt.Println(out)
 
-	if !dryRun {
+	if dryRun {
+		fmt.Println("Mapping not saved. To save, use the --dry-run=false flag.")
+	} else {
 		utils.WriteToFile(data, configfile)
 	}
 }
@@ -49,7 +35,12 @@ var mapCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// get parameters
-		expressions := parseMapArguments(args)
+		expressions, err := ParseInput(args)
+
+		if err != nil {
+			fmt.Printf("%s", err)
+			return
+		}
 
 		// get config
 		data := ParseConfigData(configfile, abbreviator.ValidateData)
@@ -61,7 +52,7 @@ var mapCmd = &cobra.Command{
 		if clear == true {
 			data.GeneratedConfig = make(map[string]string)
 		}
-		err := abbreviator.AbbreviateExpressions(expressions, data)
+		err = abbreviator.AbbreviateExpressions(expressions, data)
 		if err != nil {
 			fmt.Println(err)
 			return
