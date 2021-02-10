@@ -7,19 +7,6 @@ import (
 	"strings"
 )
 
-func parseExArguments(args []string) []string {
-
-	input, err := ParseInput(args)
-
-	if err != nil {
-		fmt.Printf("Invalid input, %s. Error is %s.", args, err)
-		return nil
-	}
-
-	return input
-
-}
-
 var expandCmd = &cobra.Command{
 	Use:   "ex",
 	Short: "Expand known abbreviations",
@@ -30,7 +17,12 @@ var expandCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// get parameters
-		expressions := parseExArguments(args)
+		expressions, err := ParseInput(args)
+
+		if err != nil {
+			fmt.Printf("%s", err)
+			return
+		}
 
 		// perform logic
 		data := ParseConfigData(configfile, expander.ValidateData)

@@ -19,8 +19,9 @@ func ParseInput(args []string) ([]string, error) {
 	}
 
 	if configfile == "" {
-		return args, errors.New("No configfile specified.")
+		return nil, errors.New("No configfile specified.")
 	}
+
 	// this may become more complex later
 	return args, nil
 }
