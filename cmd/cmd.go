@@ -12,7 +12,7 @@ var configfile string
 var configEnvvar string
 
 func ParseInput(args []string) ([]string, error) {
-	configEnvVar := os.Getenv("EXPANDER_CONFIG")
+	configEnvVar := os.Getenv("EXPANDER_CONF")
 
 	if configEnvVar != "" {
 		configfile = configEnvVar
@@ -50,5 +50,5 @@ func Execute() {
 	}
 }
 func init() {
-	rootCmd.PersistentFlags().StringVar(&configfile, "config", "", "file containing the abbreviations mapping and the generated and custom configs")
+	rootCmd.PersistentFlags().StringVar(&configfile, "config", "", "file containing the abbreviations mapping and the generated and custom configs. Can be also set via the EXPANDER_CONF env var")
 }
