@@ -10,7 +10,7 @@ var mm3 = map[string]string{"b": "bear"}
 var mm4 = map[string]string{"b": "bear", "p": "pear"}
 var mm5 = map[string]string{"a": "bear", "p": "pear"}
 
-func testComparemaps(t *testing.T) {
+func TestMapsAreIdentical(t *testing.T) {
 
 	var testcases = []struct {
 		m1  map[string]string
@@ -23,7 +23,7 @@ func testComparemaps(t *testing.T) {
 		{mm1, mm4, false},
 	}
 	for _, tc := range testcases {
-		if comparemaps(tc.m1, tc.m2) != tc.out {
+		if mapsAreIdentical(tc.m1, tc.m2) != tc.out {
 			t.Fatalf("comparing the equality of maps %s and %s should be %t but it isn't", tc.m1, tc.m2, tc.out)
 		}
 	}
