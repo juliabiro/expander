@@ -4,17 +4,10 @@ import (
 	"fmt"
 	"github.com/juliabiro/expander/pkg/expander"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 )
 
 func parseExArguments(args []string) []string {
-
-	configEnvVar := os.Getenv("EXPANDER_CONFIG")
-
-	if configEnvVar != "" {
-		configfile = configEnvVar
-	}
 
 	input, err := ParseInput(args)
 

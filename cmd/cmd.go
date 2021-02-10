@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
@@ -8,9 +9,19 @@ import (
 )
 
 var configfile string
+var configEnvvar string
 
 func ParseInput(args []string) ([]string, error) {
-	// this will become more complex later
+	configEnvVar := os.Getenv("EXPANDER_CONFIG")
+
+	if configEnvVar != "" {
+		configfile = configEnvVar
+	}
+
+	if configfile == "" {
+		return args, errors.New("No configfile specified.")
+	}
+	// this may become more complex later
 	return args, nil
 }
 

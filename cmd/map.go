@@ -5,18 +5,12 @@ import (
 	"github.com/juliabiro/expander/pkg/abbreviator"
 	"github.com/juliabiro/expander/pkg/utils"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var dryRun bool
 var clear bool
 
 func parseMapArguments(args []string) (input []string) {
-	configEnvVar := os.Getenv("EXPANDER_CONFIG")
-
-	if configEnvVar != "" {
-		configfile = configEnvVar
-	}
 
 	input, err := ParseInput(args)
 	if err != nil {
@@ -35,7 +29,9 @@ func printOutput(data *utils.ExpanderData, configfile string) {
 	fmt.Println("Generated Abbreviations:")
 	fmt.Println(out)
 
-	if !dryRun {
+	if dryRun {
+		fmt.Println("Mapping not saved. To save, use the --dry-run=false flag.")
+	} else {
 		utils.WriteToFile(data, configfile)
 	}
 }
