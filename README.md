@@ -157,4 +157,5 @@ Just don't forget to rerun the map generation when the set of contexts you have 
 
 ## future work
 
+- command for listing configured mappings
 - support for shell autocompletion
