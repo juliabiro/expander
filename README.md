@@ -82,6 +82,19 @@ You can map any long string anything to an empty string, this way simply removin
 There is no regex support, there is only a simple string match. 
 The abbreviations are executed in the order you define them, so if you have abbreviations to expressions that are prefixes to each other, make sure to specify the abbreviation for the more specific first. 
 
+### Listing configured mappings
+
+If you have forgotten, you can list your configured mappings. 
+
+```
+$ expander list --config ./example_conf.json
+
+Generated Abbreviations:
+a23z: apple-23-z
+
+Custom Abbreviations:
+```
+
 ## Example workflow: expanding kubernetes contexts
 
 1. generate a space-separated list of kubernetes contexts
